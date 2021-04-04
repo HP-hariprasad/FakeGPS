@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     TextView data;
+    TextView delayTimer;
 
     List<Coordinates> coordinatesData = new ArrayList<Coordinates>();
 
@@ -73,13 +75,15 @@ public class MainActivity extends AppCompatActivity {
         upload = (Button) findViewById(R.id.upload);
 
         mHandler = new Handler(Looper.myLooper());
-        //data = (TextView) findViewById(R.id.latAndLan);
+        data = (TextView) findViewById(R.id.textView);
+        delayTimer = (TextView) findViewById(R.id.delayTimer);
 
 
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText("Please Upload the location data File");
 
         gpsStart.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public void onClick(View v) {
                 applyMockLocation();
@@ -103,9 +107,26 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void applyMockLocation() {
-//        lat = 28.7041;
-//        lan = 77.1025;
+        new CountDownTimer(Long.MAX_VALUE, Integer.parseInt(delayTimer.getText().toString()) * 1000) {
+            int a = 0;
+
+            public void onTick(long millisUntilFinished) {
+                if (a < coordinatesData.size()) {
+                    exec(coordinatesData.get(a).getLatitude(), coordinatesData.get(a).getLongitude());
+                    a++;
+                } else {
+                    a = 0;
+                }
+            }
+
+            public void onFinish() {
+            }
+        }.start();
+////        lat = 28.7041;
+////        lan = 77.1025;
         try {
             mockNetwork = new MockLocation(LocationManager.NETWORK_PROVIDER, context);
             mockGps = new MockLocation(LocationManager.GPS_PROVIDER, context);
@@ -113,32 +134,35 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             return;
         }
-        //exec(coordinatesData.get(0).getLatitude(), coordinatesData.get(0).getLongitude());
-        exec(coordinatesData.get(0).getLatitude(), coordinatesData.get(0).getLongitude());
+//        //exec(coordinatesData.get(0).getLatitude(), coordinatesData.get(0).getLongitude());
+//        for(int i =0 ; i < coordinatesData.size();i++) {
+//            try {
+//                Thread.sleep(3000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//            exec(coordinatesData.get(i).getLatitude(), coordinatesData.get(i).getLongitude());
+////                    System.out.println("hello");
+//
+//
+//
+//
+//
+//        }
+
 
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void exec(String lat, String lan) {
-//        TextView textView = (TextView) findViewById(R.id.latAndLan);
-//        textView.setText("lat: " + lat + " lan: " + lan);
 
-        mRunnable = new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-            @Override
-            public void run() {
-                try {
-                    mockNetwork.setMockLocation(lat, lan);
-                    mockGps.setMockLocation(lat, lan);
-                    mHandler.postDelayed(mRunnable, 1000);
+        data.setText("lat: " + lat + " lan: " + lan);
+        System.out.println(lat + " " + lan);
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return;
-                }
-            }
-        };
-        mHandler.post(mRunnable);
+        mockNetwork.setMockLocation(lat, lan);
+        mockGps.setMockLocation(lat, lan);
+
     }
 
     @Override
