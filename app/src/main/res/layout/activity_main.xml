@@ -2,16 +2,24 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="TextView" />
+
     <Button
         android:id="@+id/upload"
+        android:layout_below="@id/textView"
         android:layout_width="400dp"
         android:layout_height="65dp"
-        android:layout_marginLeft="5dp"
-        android:padding="5dp"
         android:layout_marginTop="50dp"
         android:clickable="true"
         android:layout_weight="1"
@@ -19,62 +27,46 @@
         tools:layout_editor_absoluteX="11dp"
         tools:layout_editor_absoluteY="102dp" />
 
-    <Button
-        android:id="@+id/stop"
-        android:layout_width="400dp"
-        android:layout_height="65dp"
-        android:layout_marginLeft="5dp"
-        android:padding="5dp"
-        android:layout_below="@id/start"
-        android:clickable="true"
-        android:layout_marginTop="30dp"
-        android:layout_weight="1"
-        android:text="Stop"
-        tools:layout_editor_absoluteX="11dp"
-        tools:layout_editor_absoluteY="102dp" />
+<!--    <EditText-->
+<!--        android:id="@+id/delayTimer"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:padding="10dp"-->
+<!--        android:layout_below="@id/upload"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="10dp"-->
+<!--        android:ems="10"-->
+<!--        android:inputType="number"-->
+<!--        android:text="enter delay timer" />-->
+
+    <Spinner
+        android:id="@+id/spinnerDelayTimer"
+        android:layout_below="@id/upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/start"
         android:layout_width="400dp"
-        android:layout_marginLeft="5dp"
         android:layout_height="65dp"
+        android:layout_marginTop="40dp"
         android:clickable="true"
-        android:layout_below="@id/upload"
-        android:padding="5dp"
+        android:layout_below="@id/spinnerDelayTimer"
         android:layout_weight="1"
         android:text="Start"
         tools:layout_editor_absoluteX="11dp"
         tools:layout_editor_absoluteY="26dp" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/upload"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="-385dp"
-        android:text="TextView" />
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="400dp"
+        android:layout_height="65dp"
+        android:layout_below="@id/start"
+        android:clickable="true"
+        android:layout_weight="1"
+        android:text="Stop"
+        tools:layout_editor_absoluteX="11dp"
+        tools:layout_editor_absoluteY="102dp" />
 
-    <EditText
-        android:id="@+id/delayTimer"
-        android:layout_width="wrap_content"
-        android:layout_margin="30dp"
-        android:padding="10dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/stop"
-        android:ems="10"
-        android:inputType="number"
-        android:text="enter delay timer" />
-
-    <!--    <TextView-->
-<!--        android:id="@+id/latAndLan"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="300dp"-->
-<!--        android:text="TextView"-->
-<!--        tools:layout_editor_absoluteX="24dp"-->
-<!--        tools:layout_editor_absoluteY="226dp" />-->
 
 
 

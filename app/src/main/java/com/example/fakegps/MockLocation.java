@@ -2,7 +2,9 @@ package com.example.fakegps;
 
 import android.content.Context;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Build;
 import android.os.SystemClock;
 
@@ -12,27 +14,33 @@ public class MockLocation {
 
     String providerName;
     Context ctx;
-    
+    static boolean shutdown = false;
 
-    public MockLocation(String name, Context ctx){
-        this.providerName= name;
+
+    public MockLocation(String name, Context ctx) {
+        this.providerName = name;
         this.ctx = ctx;
 
         LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 
-        try{
+//        LocationProvider presentProvider = lm.getProvider(providerName);
+//
+//        if (presentProvider != null) {
+//            lm.removeTestProvider(providerName);
+//        }
+
+
+        try {
             lm.addTestProvider(providerName, false, false, false, false, false,
                     true, true, 0, 5);
 
-        }
-        catch (SecurityException e){
+        } catch (SecurityException e) {
             throw new SecurityException("Not allowed to perform MOCK_LOCATION");
         }
-
-        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public void setMockLocation(String lat, String lan){
+    public void setMockLocation(String lat, String lan) {
         LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 
         Location mockLocation = new Location(providerName);
@@ -51,27 +59,13 @@ public class MockLocation {
             mockLocation.setVerticalAccuracyMeters(0.1F);
             mockLocation.setSpeedAccuracyMetersPerSecond(0.01F);
         }
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            mockLocation.setVerticalAccuracyMeters(0.1F);
-//        }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            mockLocation.setSpeedAccuracyMetersPerSecond(0.01F);
-//        }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-//
-//        }
-
         lm.setTestProviderEnabled(providerName, true);
-
         lm.setTestProviderLocation(providerName, mockLocation);
-
-
-        //lm.removeUpdates((LocationListener) this);
     }
 
     public void shutDownMockLocation() {
         LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
         lm.removeTestProvider(providerName);
+        shutdown = true;
     }
 }
