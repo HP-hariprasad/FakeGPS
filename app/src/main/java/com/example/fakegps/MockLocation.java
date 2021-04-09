@@ -2,9 +2,7 @@ package com.example.fakegps;
 
 import android.content.Context;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.os.Build;
 import android.os.SystemClock;
 
@@ -22,17 +20,9 @@ public class MockLocation {
         this.ctx = ctx;
 
         LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-
-//        LocationProvider presentProvider = lm.getProvider(providerName);
-//
-//        if (presentProvider != null) {
-//            lm.removeTestProvider(providerName);
-//        }
-
-
         try {
             lm.addTestProvider(providerName, false, false, false, false, false,
-                    true, true, 0, 5);
+                    true, true, 1, 2);
 
         } catch (SecurityException e) {
             throw new SecurityException("Not allowed to perform MOCK_LOCATION");
@@ -40,13 +30,13 @@ public class MockLocation {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public void setMockLocation(String lat, String lan) {
+    public void setMockLocation(double lat, double lan) {
         LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
 
         Location mockLocation = new Location(providerName);
 
-        mockLocation.setLatitude(Double.parseDouble(lat));
-        mockLocation.setLongitude(Double.parseDouble(lan));
+        mockLocation.setLatitude(lat);
+        mockLocation.setLongitude(lan);
         mockLocation.setAltitude(3F);
         mockLocation.setTime(System.currentTimeMillis());
         //mockLocation.setAccuracy(16F);

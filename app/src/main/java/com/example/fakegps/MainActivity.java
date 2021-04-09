@@ -8,10 +8,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -22,13 +22,20 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
+import com.jaiselrahman.filepicker.activity.FilePickerActivity;
+import com.jaiselrahman.filepicker.config.Configurations;
+import com.jaiselrahman.filepicker.model.MediaFile;
+
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import me.himanshusoni.gpxparser.GPXParser;
+import me.himanshusoni.gpxparser.modal.GPX;
+import me.himanshusoni.gpxparser.modal.Waypoint;
 
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -36,6 +43,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String TAG = "";
     private static MockLocation mockNetwork;
     private static MockLocation mockGps;
+    public static final int PICKFILE_RESULT_CODE = 1;
+    private ArrayList<MediaFile> mediaFiles = new ArrayList<>();
 
 
     static String lat;
@@ -53,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     TextView data;
     TextView delayTimer;
 
-    List<Coordinates> coordinatesData = new ArrayList<Coordinates>();
+    List coordinatesData = new ArrayList();
 
 
     @Override
@@ -62,8 +71,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
 
         if (Build.VERSION.SDK_INT >= 23) {
-            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+//            this.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+//            this.requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+            this.requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
         }
 
         context = getApplicationContext();
@@ -100,8 +110,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         mHandler = new Handler(Looper.myLooper());
         data = (TextView) findViewById(R.id.textView);
-//        delayTimer = (TextView) findViewById(R.id.delayTimer);
-
 
         TextView textView = (TextView) findViewById(R.id.textView);
         textView.setText("Please Upload the location data File");
@@ -110,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
             @Override
             public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Play Started ", Toast.LENGTH_LONG).show();
                 applyMockLocation();
                 MockLocation.shutdown = false;
             }
@@ -117,6 +126,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         gpsStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Play Stoped ", Toast.LENGTH_LONG).show();
                 mockGps.shutDownMockLocation();
                 mockNetwork.shutDownMockLocation();
             }
@@ -124,10 +134,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setType("*/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Choose File to Upload.."), 1);
+
+//                Intent intent = new Intent(getApplicationContext(), FilePickerActivity.class);
+//                intent.putExtra(FilePickerActivity.CONFIGS, new Configurations.Builder()
+//                        .setCheckPermission(true)
+//                        .setShowFiles(true)
+//                        .setCheckPermission(true)
+//                        .setSuffixes("csv", "xls", "xlsx", "gpx")
+//                        .setMaxSelection(1)
+//                        .setSkipZeroSizeFiles(true)
+//                        .build());
+//                startActivityForResult(intent, 1);
+
+                Intent intent = new Intent(MainActivity.this, FilePickerActivity.class);
+                intent.putExtra(FilePickerActivity.CONFIGS, new Configurations.Builder()
+                        .setCheckPermission(true)
+                        .setSuffixes("csv", "xls", "xlsx", "gpx")
+                        .setShowFiles(true)
+                        .setShowImages(false)
+                        .setShowVideos(false)
+                        .setMaxSelection(1)
+                        .setSingleChoiceMode(true)
+                        .setSkipZeroSizeFiles(true)
+                        .build());
+                startActivityForResult(intent, 1);
+
             }
         });
     }
@@ -149,13 +180,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             public void onTick(long millisUntilFinished) {
                 if (a < coordinatesData.size() && !MockLocation.shutdown) {
-                    exec(coordinatesData.get(a).getLatitude(), coordinatesData.get(a).getLongitude());
+                    exec(((Waypoint) coordinatesData.get(a)).getLatitude(), ((Waypoint) coordinatesData.get(a)).getLongitude());
                     a++;
                 } else {
                     a = 0;
                 }
             }
-
             public void onFinish() {
             }
         }.start();
@@ -163,7 +193,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    private void exec(String lat, String lan) {
+    private void exec(double lat, double lan) {
+        Toast.makeText(getApplicationContext(), "Play Running", Toast.LENGTH_LONG).show();
 
         data.setText("lat: " + lat + " lan: " + lan);
         System.out.println(lat + " " + lan);
@@ -190,30 +221,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == 1) {
+            if (requestCode == 1 && data != null) {
                 if (data == null) {
                     return;
                 }
-                Uri selectedFileUri = data.getData();
+                Bundle bundle = data.getExtras();
+                TextView textView = (TextView) findViewById(R.id.textView);
+
+                ArrayList<MediaFile> files = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES);
+
+                textView.setText(files.get(0).getName());
+
                 try {
-                    InputStream inputStream = getContentResolver().openInputStream(selectedFileUri);
-                    BufferedReader r = new BufferedReader(new InputStreamReader(inputStream));
 
-                    for (String line; (line = r.readLine()) != null; ) {
-                        Coordinates coordinates = new Coordinates();
-                        coordinates.setLatitude(line.split(",")[0]);
-                        coordinates.setLongitude(line.split(",")[1]);
-                        coordinatesData.add(coordinates);
-                    }
-                    TextView textView = (TextView) findViewById(R.id.textView);
-                    textView.setText("Data Uploaded Successfully and can Start MockGps");
+                    GPXParser p = new GPXParser();
+                    FileInputStream fileInput = new FileInputStream(files.get(0).getPath());
 
-                    System.out.println("below is the coordinates");
-                    for (Coordinates allData : coordinatesData) {
-                        System.out.println("below is the Latitude");
-                        System.out.println(allData.getLatitude());
-                        System.out.println("below is the Longitude");
-                        System.out.println(allData.getLongitude());
+                    try {
+                        GPX gpx = p.parseGPX(fileInput);
+                        coordinatesData = new ArrayList(gpx.getWaypoints());
+                        System.out.println("Gpx data");
+                        System.out.println(gpx);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -228,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String item = parent.getItemAtPosition(position).toString();
-        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+        Toast.makeText(parent.getContext(), "Selected: " + item + " as interval time", Toast.LENGTH_LONG).show();
     }
 
     @Override

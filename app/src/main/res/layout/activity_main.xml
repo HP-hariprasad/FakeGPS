@@ -27,21 +27,12 @@
         tools:layout_editor_absoluteX="11dp"
         tools:layout_editor_absoluteY="102dp" />
 
-<!--    <EditText-->
-<!--        android:id="@+id/delayTimer"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:padding="10dp"-->
-<!--        android:layout_below="@id/upload"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="10dp"-->
-<!--        android:ems="10"-->
-<!--        android:inputType="number"-->
-<!--        android:text="enter delay timer" />-->
-
     <Spinner
         android:id="@+id/spinnerDelayTimer"
-        android:layout_below="@id/upload"
-        android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
+        android:padding="5dp"
+        android:layout_below="@id/largeLabel"
+        android:layout_width="1in"
         android:layout_height="wrap_content" />
 
     <Button
@@ -67,7 +58,27 @@
         tools:layout_editor_absoluteX="11dp"
         tools:layout_editor_absoluteY="102dp" />
 
+    <TextView
+        android:id="@+id/largeLabel"
+        android:layout_below="@id/upload"
+        android:layout_marginTop="10dp"
+        android:layout_width="2in"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Select the Interval time" />
 
+    <TextView
+        android:id="@+id/SecondsLabel"
+        android:layout_below="@id/largeLabel"
+        android:layout_toRightOf="@id/spinnerDelayTimer"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="25dp"
+        android:layout_width="2in"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="Seconds" />
 
 
 </RelativeLayout>
